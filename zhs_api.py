@@ -5,6 +5,7 @@ import datetime
 from Crypto.Cipher import AES
 import base64
 import time
+import json
 
 session = requests.session()
 session.headers = {
@@ -64,6 +65,7 @@ class ZHSEncrypt:
     """
     智慧树自写加密算法集
     """
+
     def gen_watch_point(self, start_time, end_time=300):
         """
         生成watchPoint（提交共享学分课视频进度接口用）
@@ -88,9 +90,12 @@ class ZHSEncrypt:
                 watch_point += str(t)
         return watch_point
 
-    def get_ev(self, t: list):
+    def get_ev(self, t: list, key='zzpttjd'):
         """
+        D26666 key:zzpttjd
+        D24444 key:zhihuishu
         生成参数ev（提交共享学分课视频进度接口用）
+        见面课页面加密参数D24444也使用此加密
         :param t:
         请注意，此列表不同接口顺序不同
         以下为Database进度提交接口的顺序
@@ -105,15 +110,20 @@ class ZHSEncrypt:
            parseInt(this.totalStudyTime),
            i.i(p.g) (ablePlayerX('container').getPosition())   （str e.g:  "00:04:43"）
          ],
+         以下为见面课提交的参数列表：
+         [recruitId, liveCourseId, userId, relativeTime, watchType, curVideoId]
         """
-        _d = 'zzpttjd'
-        # Y
+        # _d = 'zzpttjd'
+        _d = key
+
+        # Y/
         def y(_t):
             e_2 = str(hex(_t))[2:]
             if len(e_2) < 2:
                 return '0' + e_2
             else:
                 return e_2
+
         # Z
         e = ''
         for j in t:
@@ -122,7 +132,7 @@ class ZHSEncrypt:
         # X
         e_1 = ''
         for i in range(len(e)):
-            n = ord(e[i]) ^ ord(_d[i % 7])
+            n = ord(e[i]) ^ ord(_d[i % len(_d)])
             e_1 += y(n)
         return e_1
 
@@ -308,7 +318,7 @@ class Course(Account):
                    f'"pageSize":{page_size},"recruitId":"{recruit_id}"}}'
         if mode == 'topic':
             raw_data = f'{{"courseId":"{course_id}","pageIndex":{page_index},' \
-                   f'"pageSize":{page_size},"recruitId":"{recruit_id}","chapterId":0}}'
+                       f'"pageSize":{page_size},"recruitId":"{recruit_id}","chapterId":0}}'
         secret_str = aes.aes_encrypt(raw_data)
         data = {
             "dateFormate": int(round(time.time()) * 1000),
@@ -546,11 +556,57 @@ class Course(Account):
         data = {"secretStr": secret_str}
         r = session.post(url, data=data)
         return r.json()
+
     """
-    见面课相关 施工中...
+    见面课相关
     """
 
+    def get_meet_course_list(self, recruit_id):
+        """
+        获取见面课信息
+        """
+        url = 'https://stuonline.zhihuishu.com/stuonline/json/teachMeeting/listTeachMeetingStu?examV2=ss'
+        data = {
+            "recruitId": f"{recruit_id}",
+            "page.pageNo": "0",
+            "page.pageSize": "10"
+        }
+        r = session.post(url, data=data)
+        return r.json()
 
+    def get_videos_by_live_id(self, live_id):
+        """
+        获取见面课视频信息
+        """
+        url = f'https://im.zhihuishu.com/livehome/getVideosByLiveId?liveId={live_id}'
+        r = session.get(url)
+        return json.loads(r.text)
 
+    def get_mc_watch_history(self, live_id, user_id):
+        """
+        获取观看记录
+        """
+        url = 'http://im.zhihuishu.com//live/getWatchHistory'
+        params = {
+            "s": f"{round(time.time() * 1000)}",
+            "jsonpCallBack": "getWatchHistoryCallBack",
+            "courseId": f"{live_id}",
+            "userId": f"{user_id}",
+            "_": f"{round(time.time() * 1000)}"
+        }
+        r = session.get(url, params=params)
+        return json.loads(r.text.replace('getWatchHistoryCallBack(', '')[:-1])
 
-
+    def submit_meet_course_progress(self, param_secret):
+        """
+        提交见面课进度
+        """
+        url = 'https://im.zhihuishu.com//live/setWatchHistorySecret'
+        params = {
+            "callback": "jsonpCallBack",
+            "paramSecret": f"{param_secret}",
+            "jsonpCallBack": "jsonpCallBack",
+            "_": f"{round(time.time() * 1000)}"
+        }
+        r = session.get(url, params=params)
+        return r.text
