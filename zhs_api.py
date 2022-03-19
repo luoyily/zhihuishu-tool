@@ -586,7 +586,7 @@ class Course(Account):
         """
         获取观看记录
         """
-        url = 'http://im.zhihuishu.com//live/getWatchHistory'
+        url = 'https://im.zhihuishu.com//live/getWatchHistory'
         params = {
             "s": f"{round(time.time() * 1000)}",
             "jsonpCallBack": "getWatchHistoryCallBack",

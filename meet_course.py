@@ -65,10 +65,16 @@ for n, mc in enumerate(meet_course_list):
 
 def finish_meet_course(meet_course:MeetCourse):
     videos = course.get_videos_by_live_id(meet_course.live_id)
+    total_min = 1
     for video in videos:
         video_id = video['id']
         duration = video['duration']
-        points = range(len(meet_course.watch_history)+1, math.ceil(duration/60)+1)
+        video_min = math.ceil(duration/60)
+        total_min += video_min
+        points = list(range(total_min-video_min, total_min))
+        for x in meet_course.watch_history:
+            if int(x) in points:
+                points.remove(int(x))
         for relative_time in points:
             t = [
                 meet_course.rid,
