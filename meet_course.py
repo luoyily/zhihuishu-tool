@@ -56,11 +56,12 @@ for rid in sc_rids:
 print('直播已结束且未观看完成的见面课:')
 for n, mc in enumerate(meet_course_list):
     # print(mc.name, mc.status)
-    if int(mc.status) == 3:
-        r = course.get_mc_watch_history(mc.live_id, mc.uid)
-        mc.watch_history = str(r['history']).split(',')
-        if r['history'] != '#':
-            print(f'Num:{n}, Name:{mc.name}')
+    if mc.status:
+        if int(mc.status) == 3:
+            r = course.get_mc_watch_history(mc.live_id, mc.uid)
+            mc.watch_history = str(r['history']).split(',')
+            if r['history'] != '#':
+                print(f'Num:{n}, Name:{mc.name}')
 
 
 def finish_meet_course(meet_course:MeetCourse):
@@ -73,8 +74,9 @@ def finish_meet_course(meet_course:MeetCourse):
         total_min += video_min
         points = list(range(total_min-video_min, total_min))
         for x in meet_course.watch_history:
-            if int(x) in points:
-                points.remove(int(x))
+            if x:
+                if int(x) in points:
+                    points.remove(int(x))
         for relative_time in points:
             t = [
                 meet_course.rid,
@@ -91,12 +93,14 @@ def finish_meet_course(meet_course:MeetCourse):
 pre_fin_mc = int(input("请输入一个需要完成的见面课序号（-1：完成全部）"))
 if pre_fin_mc == -1:
     for mc in meet_course_list:
-        if mc.watch_history != ['#'] and int(mc.status) == 3:
-            finish_meet_course(mc)
+        if mc.status:
+            if mc.watch_history != ['#'] and int(mc.status) == 3:
+                finish_meet_course(mc)
 else:
     mc = meet_course_list[pre_fin_mc]
-    if mc.watch_history != ['#'] and int(mc.status) == 3:
-        finish_meet_course(mc)
+    if mc.status:
+        if mc.watch_history != ['#'] and int(mc.status) == 3:
+            finish_meet_course(mc)
 
 
 
