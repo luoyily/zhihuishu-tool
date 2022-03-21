@@ -410,6 +410,21 @@ class Course(Account):
         r = session.post(url, data=data)
         return r.json()
 
+    def get_question_info(self, qid):
+        """
+        获取问题信息（创建时间，是否由老师创建，是否回答过...）
+        """
+        url = 'https://creditqa-api.zhihuishu.com/creditqa/gateway/t/v1/web/qa/getQuestionInfo'
+        aes = AESEncrypt(key=QA_AES_KEY, iv=ZHS_AES_IV, mode=ZHS_AES_MODE)
+        raw_data = f'{{"questionId": "{qid}","sourceType": "2"}}'
+        secret_str = aes.aes_encrypt(raw_data)
+        data = {
+            "dateFormate": int(round(time.time()) * 1000),
+            "secretStr": secret_str
+        }
+        r = session.post(url, data=data)
+        return r.json()
+
     """
     共享学分课视频页相关
     """
