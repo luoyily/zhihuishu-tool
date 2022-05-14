@@ -172,20 +172,8 @@ class Account:
         # 获取uuid
         pwd, uuid = self.validata_account_and_password(username, password)
         self.uuid = uuid
-        url = 'https://passport.zhihuishu.com/login'
-        data = {
-            "lt": self.get_lt(),
-            "execution": "e1s1",
-            "_eventId": "submit",
-            "username": username,
-            "password": password,
-            "clCode": "",
-            "clPassword": "",
-            "tlCode": "",
-            "tlPassword": "",
-            "remember": "on"
-        }
-        session.post(url, data)
+        url = f'https://passport.zhihuishu.com/login?pwd={pwd}&service=https://onlineservice-api.zhihuishu.com/gateway/f/v1/login/gologin?fromurl=https%3A%2F%2Fonlineweb.zhihuishu.com%2F'
+        session.get(url)
 
     def go_login(self, go_link):
         """
