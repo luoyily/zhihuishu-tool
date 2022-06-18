@@ -11,10 +11,10 @@
 
 本项目使用python 3.x 编写
 
-使用前需要安装依赖库：requests, pycryptodome
+## 依赖安装
 
-```
-pip install requests pycryptodome
+```shell
+pip install -r requirements.txt
 ```
 
 ## 简易文档
