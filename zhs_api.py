@@ -153,6 +153,31 @@ class Account:
         uuid = r.json()['uuid']
         return pwd, uuid
 
+    def validate_qr_code(self, qr_callback):
+        """
+        验证二维码
+        :return: oncePassword, uuid
+        """
+        import websockets, asyncio
+        qr_page = "https://passport.zhihuishu.com/qrCodeLogin/getLoginQrImg"
+        async def wait(url):
+            async with websockets.connect(url, extra_headers=session.headers) as websocket:
+                while True:
+                    msg = json.loads(await websocket.recv())
+                    match msg["code"]:
+                        case 0:
+                            print(msg["msg"])
+                        case 1:
+                            print(msg["msg"])
+                            return msg["oncePassword"], msg["uuid"]
+                        case _:
+                            raise Exception(f"Unknown Response {msg.msg}")
+        r = session.get(qr_page, timeout=10).json()
+        qrToken = r["qrToken"]
+        img = base64.b64decode(r["img"])
+        qr_callback(img)
+        return asyncio.get_event_loop().run_until_complete(wait(f"wss://appcomm-user.zhihuishu.com/app-commserv-user/websocket?qrToken={qrToken}"))
+
     def check_need_auth(self, uuid):
         """检查是否需要验证"""
         url = 'https://appcomm-user.zhihuishu.com/app-commserv-user/userInfo/checkNeedAuth'
@@ -167,10 +192,10 @@ class Account:
         lt = str(re.search('LT(.*?).com', r.text).group())
         return lt
 
-    def login(self, username, password):
+    def login(self, username=None, password=None, use_qr=False, qr_callback=None):
         """登录"""
         # 获取uuid
-        pwd, uuid = self.validata_account_and_password(username, password)
+        pwd, uuid = self.validate_qr_code(qr_callback) if use_qr else self.validata_account_and_password(username, password)
         self.uuid = uuid
         url = f'https://passport.zhihuishu.com/login?pwd={pwd}&service=https://onlineservice-api.zhihuishu.com/gateway/f/v1/login/gologin?fromurl=https%3A%2F%2Fonlineweb.zhihuishu.com%2F'
         session.get(url)
