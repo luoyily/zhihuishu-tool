@@ -19,7 +19,7 @@ HOME_PAGE_AES_KEY = '7q9oko0vqb3la20r'
 ZHS_AES_IV = '1g3qqdh4jvbskb9x'
 ZHS_AES_MODE = AES.MODE_CBC
 # 共享学分课视频页AES Key
-STUDY_VIDEO_AES_KEY = 'qz632524n86i7fk9'
+STUDY_VIDEO_AES_KEY = 'azp53h0kft7qi78q'
 # 共享学分课问答页AES Key
 QA_AES_KEY = 'w1k5ntxecb8wmbc2'
 
@@ -170,6 +170,9 @@ class Account:
                         case 1:
                             print(msg["msg"])
                             return msg["oncePassword"], msg["uuid"]
+                        case 2:
+                            print(msg["msg"])
+                            raise Exception(msg["msg"])
                         case _:
                             raise Exception(f"Unknown Response {msg.msg}")
         r = session.get(qr_page, timeout=10).json()
