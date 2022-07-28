@@ -1,5 +1,7 @@
 import zhs_api
 import time
+import io
+from PIL import Image
 
 """
 视频学习进度提交流程：
@@ -17,12 +19,15 @@ import time
         |       达到计时，提交正常请求
         |提交只有ev, lid, date的请求（也可以不管）
 """
+def showImage(img):
+    img = Image.open(io.BytesIO(img))
+    img.show()
 
 course = zhs_api.Course()
-print("登录：（未做账号密码正确性验证，请确定后再输入！）")
-username = input("请输入账号：")
-password = input("请输入密码：")
-course.login(username, password)
+#username = input("请输入账号：")
+#password = input("请输入密码：")
+#course.login(username, password)
+course.login(use_qr=True, qr_callback=showImage)
 is_immediately_submit = True
 
 

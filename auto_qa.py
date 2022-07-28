@@ -1,12 +1,19 @@
 import zhs_api
 import time
+import io
+from PIL import Image
+
+def showImage(img):
+    img = Image.open(io.BytesIO(img))
+    img.show()
 
 course = zhs_api.Course()
 zhs_encrypt = zhs_api.ZHSEncrypt()
-print("登录：（请确定后再输入！）")
-username = input("请输入账号：")
-password = input("请输入密码：")
-course.login(username, password)
+#print("登录：（未做账号密码正确性验证，请确定后再输入！）")
+#username = input("请输入账号：")
+#password = input("请输入密码：")
+#course.login(username, password)
+course.login(use_qr=True, qr_callback=showImage)
 
 
 sc_list = []
