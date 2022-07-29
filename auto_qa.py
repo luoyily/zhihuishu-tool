@@ -3,7 +3,7 @@ import time
 import io
 from PIL import Image
 
-def showImage(img):
+def show_image(img):
     img = Image.open(io.BytesIO(img))
     img.show()
 
@@ -13,7 +13,7 @@ zhs_encrypt = zhs_api.ZHSEncrypt()
 #username = input("请输入账号：")
 #password = input("请输入密码：")
 #course.login(username, password)
-course.login(use_qr=True, qr_callback=showImage)
+course.login(use_qr=True, qr_callback=show_image)
 
 
 sc_list = []

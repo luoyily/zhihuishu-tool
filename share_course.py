@@ -19,7 +19,7 @@ from PIL import Image
         |       达到计时，提交正常请求
         |提交只有ev, lid, date的请求（也可以不管）
 """
-def showImage(img):
+def show_image(img):
     img = Image.open(io.BytesIO(img))
     img.show()
 
@@ -27,7 +27,7 @@ course = zhs_api.Course()
 #username = input("请输入账号：")
 #password = input("请输入密码：")
 #course.login(username, password)
-course.login(use_qr=True, qr_callback=showImage)
+course.login(use_qr=True, qr_callback=show_image)
 is_immediately_submit = True
 
 
